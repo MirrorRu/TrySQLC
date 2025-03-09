@@ -1,0 +1,23 @@
+version: "2"
+overrides:
+  go:
+    overrides:
+
+sql:
+  - name: "members module"
+    engine: "postgresql"
+    schema: "../../migrations"
+    queries: "./members/queries.sql"
+    gen:
+      go:
+        package: "sqlc_members"
+        out: "./members/sqlc_gen/"
+        #sql_package: "pgx/v5"
+        emit_exact_table_names: true
+        emit_result_struct_pointers: true
+        emit_all_enum_values: true
+        emit_enum_valid_method: true
+        emit_params_struct_pointers: true
+        emit_interface: true
+        emit_methods_with_db_argument: true
+        #emit_prepared_queries: true
