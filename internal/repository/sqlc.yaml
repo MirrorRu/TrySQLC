@@ -12,7 +12,7 @@ sql:
       go:
         package: "sqlc_members"
         out: "./members/sqlc_gen/"
-        #sql_package: "pgx/v5"
+        sql_package: "pgx/v5"
         emit_exact_table_names: true
         emit_result_struct_pointers: true
         emit_all_enum_values: true

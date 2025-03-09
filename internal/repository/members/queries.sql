@@ -42,12 +42,3 @@ WHERE
 ORDER BY
     mt.name
 ;
-
--- name: GetMembersList2 :many
-SELECT *
-FROM members.members_table mt
-WHERE
-    mt.name like sqlc.arg(conditions)
-ORDER BY
-    mt.name
-;

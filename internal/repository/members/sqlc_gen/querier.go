@@ -6,15 +6,15 @@ package sqlc_members
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	CreateMember(ctx context.Context, db DBTX, arg *CreateMemberParams) (*MembersMembersTable, error)
 	DeleteMember(ctx context.Context, db DBTX, id int64) (*MembersMembersTable, error)
 	GetMember(ctx context.Context, db DBTX, id int64) (*MembersMembersTable, error)
-	GetMembersList(ctx context.Context, db DBTX, name sql.NullString) ([]*MembersMembersTable, error)
-	GetMembersList2(ctx context.Context, db DBTX, conditions string) ([]*MembersMembersTable, error)
+	GetMembersList(ctx context.Context, db DBTX, name pgtype.Text) ([]*MembersMembersTable, error)
 	UpdateMember(ctx context.Context, db DBTX, arg *UpdateMemberParams) (*MembersMembersTable, error)
 }
 

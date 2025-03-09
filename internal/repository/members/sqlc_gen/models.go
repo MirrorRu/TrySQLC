@@ -5,11 +5,11 @@
 package sqlc_members
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type MembersMembersTable struct {
 	ID       int64
 	Name     string
-	Birthday sql.NullTime
+	Birthday pgtype.Date
 }

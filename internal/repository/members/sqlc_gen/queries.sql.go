@@ -7,7 +7,8 @@ package sqlc_members
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createMember = `-- name: CreateMember :one
@@ -21,11 +22,11 @@ INSERT INTO members.members_table(
 
 type CreateMemberParams struct {
 	Name     string
-	Birthday sql.NullTime
+	Birthday pgtype.Date
 }
 
 func (q *Queries) CreateMember(ctx context.Context, db DBTX, arg *CreateMemberParams) (*MembersMembersTable, error) {
-	row := db.QueryRowContext(ctx, createMember, arg.Name, arg.Birthday)
+	row := db.QueryRow(ctx, createMember, arg.Name, arg.Birthday)
 	var i MembersMembersTable
 	err := row.Scan(&i.ID, &i.Name, &i.Birthday)
 	return &i, err
@@ -39,7 +40,7 @@ RETURNING id, name, birthday
 `
 
 func (q *Queries) DeleteMember(ctx context.Context, db DBTX, id int64) (*MembersMembersTable, error) {
-	row := db.QueryRowContext(ctx, deleteMember, id)
+	row := db.QueryRow(ctx, deleteMember, id)
 	var i MembersMembersTable
 	err := row.Scan(&i.ID, &i.Name, &i.Birthday)
 	return &i, err
@@ -54,7 +55,7 @@ LIMIT 1
 `
 
 func (q *Queries) GetMember(ctx context.Context, db DBTX, id int64) (*MembersMembersTable, error) {
-	row := db.QueryRowContext(ctx, getMember, id)
+	row := db.QueryRow(ctx, getMember, id)
 	var i MembersMembersTable
 	err := row.Scan(&i.ID, &i.Name, &i.Birthday)
 	return &i, err
@@ -71,8 +72,8 @@ ORDER BY
     mt.name
 `
 
-func (q *Queries) GetMembersList(ctx context.Context, db DBTX, name sql.NullString) ([]*MembersMembersTable, error) {
-	rows, err := db.QueryContext(ctx, getMembersList, name)
+func (q *Queries) GetMembersList(ctx context.Context, db DBTX, name pgtype.Text) ([]*MembersMembersTable, error) {
+	rows, err := db.Query(ctx, getMembersList, name)
 	if err != nil {
 		return nil, err
 	}
@@ -84,41 +85,6 @@ func (q *Queries) GetMembersList(ctx context.Context, db DBTX, name sql.NullStri
 			return nil, err
 		}
 		items = append(items, &i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getMembersList2 = `-- name: GetMembersList2 :many
-SELECT id, name, birthday
-FROM members.members_table mt
-WHERE
-    mt.name like $1
-ORDER BY
-    mt.name
-`
-
-func (q *Queries) GetMembersList2(ctx context.Context, db DBTX, conditions string) ([]*MembersMembersTable, error) {
-	rows, err := db.QueryContext(ctx, getMembersList2, conditions)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*MembersMembersTable
-	for rows.Next() {
-		var i MembersMembersTable
-		if err := rows.Scan(&i.ID, &i.Name, &i.Birthday); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -138,12 +104,12 @@ RETURNING id, name, birthday
 
 type UpdateMemberParams struct {
 	Name     string
-	Birthday sql.NullTime
+	Birthday pgtype.Date
 	ID       int64
 }
 
 func (q *Queries) UpdateMember(ctx context.Context, db DBTX, arg *UpdateMemberParams) (*MembersMembersTable, error) {
-	row := db.QueryRowContext(ctx, updateMember, arg.Name, arg.Birthday, arg.ID)
+	row := db.QueryRow(ctx, updateMember, arg.Name, arg.Birthday, arg.ID)
 	var i MembersMembersTable
 	err := row.Scan(&i.ID, &i.Name, &i.Birthday)
 	return &i, err
